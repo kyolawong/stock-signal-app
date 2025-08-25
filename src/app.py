@@ -1,5 +1,6 @@
 import streamlit as st
-import random
+import yfinance as yf
+import pandas as pd
 
 st.set_page_config(page_title="Stock Strategy App", layout="wide")
 
@@ -16,9 +17,33 @@ strategy = st.sidebar.radio(
 # --- Stock ticker input ---
 ticker = st.text_input("🔎 Enter Stock Ticker (e.g., AAPL, TSLA, MSFT):", value="AAPL").upper()
 
-# Fake signals for now
-signals = ["Buy", "Sell", "Hold"]
-signal = random.choice(signals)
+def generate_signal(ticker, strategy):
+    try:
+        if strategy == "Short-term (Day/Week)":
+            data = yf.download(ticker, period="5d", interval="1d")
+        elif strategy == "Mid-term (Weeks/Months)":
+            data = yf.download(ticker, period="1mo", interval="1d")
+        else:
+            data = yf.download(ticker, period="6mo", interval="1d")
+
+        if data.empty:
+            return "No Data"
+
+        last_price = data["Close"].iloc[-1]
+        first_price = data["Close"].iloc[0]
+        change = (last_price - first_price) / first_price * 100
+
+        if change > 2:
+            return f"Buy (Up {change:.2f}%)"
+        elif change < -2:
+            return f"Sell (Down {change:.2f}%)"
+        else:
+            return f"Hold (Change {change:.2f}%)"
+
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+signal = generate_signal(ticker, strategy)
 
 # Layout with two columns
 left, right = st.columns([2, 1])
@@ -26,23 +51,25 @@ left, right = st.columns([2, 1])
 with left:
     if strategy == "Short-term (Day/Week)":
         st.subheader(f"⚡ Short-term Strategy for {ticker}")
-        st.write("For day traders and quick weekly trades.")
+        st.write("Based on the past 5 trading days.")
 
     elif strategy == "Mid-term (Weeks/Months)":
         st.subheader(f"📊 Mid-term Strategy for {ticker}")
-        st.write("For swing traders holding for weeks to months.")
+        st.write("Based on the past 1 month trend.")
 
     elif strategy == "Long-term (Months/Years)":
         st.subheader(f"🌱 Long-term Strategy for {ticker}")
-        st.write("For investors focused on long horizon trends.")
+        st.write("Based on the past 6 months trend.")
 
 with right:
-    if signal == "Buy":
-        st.success(f"✅ Signal for {ticker}: Buy")
-    elif signal == "Sell":
-        st.error(f"❌ Signal for {ticker}: Sell")
+    if "Buy" in signal:
+        st.success(f"✅ Signal for {ticker}: {signal}")
+    elif "Sell" in signal:
+        st.error(f"❌ Signal for {ticker}: {signal}")
+    elif "Hold" in signal:
+        st.info(f"➖ Signal for {ticker}: {signal}")
     else:
-        st.info(f"➖ Signal for {ticker}: Hold")
+        st.warning(signal)
 
 # Footer disclaimer
 st.markdown("---")
