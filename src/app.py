@@ -29,9 +29,9 @@ def generate_signal(ticker, strategy):
         if data.empty:
             return "No Data"
 
-        last_price = data["Close"].iloc[-1]
-        first_price = data["Close"].iloc[0]
-        change = (last_price - first_price) / first_price * 100
+        last_price = float(data["Close"].iloc[-1])
+        first_price = float(data["Close"].iloc[0])
+        change = ((last_price - first_price) / first_price) * 100.0
 
         if change > 2:
             return f"Buy (Up {change:.2f}%)"
@@ -42,6 +42,7 @@ def generate_signal(ticker, strategy):
 
     except Exception as e:
         return f"Error: {str(e)}"
+
 
 signal = generate_signal(ticker, strategy)
 
