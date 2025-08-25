@@ -1,5 +1,8 @@
 import streamlit as st
 import random
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="Stock Strategy App", layout="wide")
 
@@ -32,6 +35,18 @@ with left:
     elif strategy == "Long-term (Months/Years)":
         st.subheader("🌱 Long-term Strategy")
         st.write("For investors focused on long horizon trends.")
+
+    # --- Dummy Stock Chart ---
+    st.markdown("### 📉 Stock Price (Dummy Data)")
+    dates = pd.date_range(end=pd.Timestamp.today(), periods=30)
+    prices = np.cumsum(np.random.randn(30)) + 100  # random walk
+
+    fig, ax = plt.subplots()
+    ax.plot(dates, prices, marker="o", linestyle="-", linewidth=2)
+    ax.set_title("Simulated Stock Price Trend")
+    ax.set_xlabel("Date")
+    ax.set_ylabel("Price")
+    st.pyplot(fig)
 
 with right:
     if signal == "Buy":
