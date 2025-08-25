@@ -1,30 +1,31 @@
-"""
-app.py
--------
-Streamlit web app that displays Mid-Term and Long-Term signals together.
-"""
-
 import streamlit as st
-from signals import get_midterm_signal, get_longterm_signal
+import random
 
-st.set_page_config(page_title="Stock Signal Dashboard", layout="wide")
+st.set_page_config(page_title="Stock Strategy App", layout="wide")
 
-st.title("📊 Stock Signal Dashboard")
-st.write("Mid-Term and Long-Term signals in one place")
+st.title("📈 Stock Strategy App")
+st.write("Choose your preferred trading horizon and get a signal.")
 
-# Watchlist input
-tickers = st.text_input("Enter stock tickers (comma separated):", "AAPL, TSLA, MSFT")
-watchlist = [t.strip().upper() for t in tickers.split(",") if t.strip()]
+# Sidebar selection
+strategy = st.sidebar.radio(
+    "Select Strategy",
+    ["Short-term (Day/Week)", "Mid-term (Weeks/Months)", "Long-term (Months/Years)"]
+)
 
-# Generate signals
-signals = []
-for ticker in watchlist:
-    signals.append(get_midterm_signal(ticker))
-    signals.append(get_longterm_signal(ticker))
+# Fake signals for now (we’ll later connect to real stock data)
+signals = ["Buy", "Sell", "Hold"]
 
-# Display signals in a table
-if signals:
-    st.subheader("Combined Signals")
-    st.table(signals)
-else:
-    st.info("Enter at least one ticker to see signals.")
+if strategy == "Short-term (Day/Week)":
+    st.subheader("⚡ Short-term Strategy")
+    st.write("Designed for day traders and quick weekly trades.")
+    st.success(f"Signal: {random.choice(signals)}")
+
+elif strategy == "Mid-term (Weeks/Months)":
+    st.subheader("📊 Mid-term Strategy")
+    st.write("Designed for swing traders holding for weeks to months.")
+    st.info(f"Signal: {random.choice(signals)}")
+
+elif strategy == "Long-term (Months/Years)":
+    st.subheader("🌱 Long-term Strategy")
+    st.write("Designed for investors focused on long horizon trends.")
+    st.warning(f"Signal: {random.choice(signals)}")
